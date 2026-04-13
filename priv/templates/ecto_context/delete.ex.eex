@@ -1,0 +1,16 @@
+  @doc """
+  Deletes a `<%= inspect(schema) %>`.
+
+  Returns `{:ok, <%= singular %>}` on success or `{:error, :unauthorized}` if the scope
+  lacks permission.
+  """
+  def delete(scope, %<%= inspect(schema) %>{} = <%= singular %>) when is_map(scope) do
+    with true <- permission(:delete, <%= singular %>, scope) || {:error, :unauthorized},
+         {:ok, <%= singular %> = %<%= inspect(schema) %>{}} <- <%= inspect(repo) %>.delete(<%= singular %>) do
+
+      if function_exported?(__MODULE__, :broadcast, 2) do
+        apply(__MODULE__, :broadcast, [scope, {:deleted, <%= singular %>}])
+      end
+      {:ok, <%= singular %>}
+    end
+  end

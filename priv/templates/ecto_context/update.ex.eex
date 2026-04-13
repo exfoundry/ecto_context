@@ -1,0 +1,33 @@
+  @doc """
+  Updates a `<%= inspect(schema) %>` with the given `attrs`.
+
+  Returns `{:ok, <%= singular %>}` on success, `{:error, :unauthorized}` if the scope
+  lacks permission, or `{:error, changeset}` on validation failure.
+
+  ## Options
+
+    * `:changeset` - changeset function to use (default: `:changeset`)
+
+  If a `changeset_permission/2` function is exported by the calling module,
+  it is consulted whenever a non-default `:changeset` is passed.  Return
+  `true` to allow or `false` to deny (results in `{:error, :unauthorized}`).
+
+  """
+  def update(scope, %<%= inspect(schema) %>{} = <%= singular %>, attrs, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:changeset])
+
+    changeset_fn = Keyword.get(opts, :changeset, <%= inspect(default_changeset) %>)
+
+    with true <- (changeset_fn == <%= inspect(default_changeset) %> or
+                  not function_exported?(__MODULE__, :changeset_permission, 2) or
+                  apply(__MODULE__, :changeset_permission, [changeset_fn, scope])) || {:error, :unauthorized},
+         true <- permission(:update, <%= singular %>, scope) || {:error, :unauthorized},
+         changeset = apply(<%= inspect(schema) %>, changeset_fn, [<%= singular %>, attrs, scope]),
+         {:ok, <%= singular %> = %<%= inspect(schema) %>{}} <- <%= inspect(repo) %>.update(changeset) do
+
+      if function_exported?(__MODULE__, :broadcast, 2) do
+        apply(__MODULE__, :broadcast, [scope, {:updated, <%= singular %>}])
+      end
+      {:ok, <%= singular %>}
+    end
+  end

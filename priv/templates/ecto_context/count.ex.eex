@@ -1,0 +1,16 @@
+  @doc """
+  Returns the count of `<%= inspect(schema) %>` records within `scope`.
+
+  ## Options
+
+    * `:query` - 1-arity function for additional query composition
+
+  """
+  def count(scope, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:query])
+
+    <%= inspect(schema) %>
+    |> (<%= inspect(scope) %>).(scope)
+    |> EctoContext.Query.maybe_query(opts[:query])
+    |> <%= inspect(repo) %>.aggregate(:count, :id)
+  end

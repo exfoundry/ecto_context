@@ -1,0 +1,24 @@
+  @doc """
+  Returns all `<%= inspect(schema) %>` records within `scope`.
+
+  ## Options
+
+    * `:preload` - associations to preload
+    * `:order_by` - field or keyword list passed to `Ecto.Query.order_by/2`
+    * `:limit` - maximum number of results
+    * `:select` - list of fields to select
+    * `:query` - 1-arity function for additional query composition
+
+  """
+  def list(scope, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:preload, :order_by, :limit, :select, :query])
+
+    <%= inspect(schema) %>
+    |> (<%= inspect(scope) %>).(scope)
+    |> EctoContext.Query.maybe_query(opts[:query])
+    |> EctoContext.Query.maybe_preload(opts[:preload])
+    |> EctoContext.Query.maybe_order_by(opts[:order_by])
+    |> EctoContext.Query.maybe_limit(opts[:limit])
+    |> EctoContext.Query.maybe_select(opts[:select])
+    |> <%= inspect(repo) %>.all()
+  end

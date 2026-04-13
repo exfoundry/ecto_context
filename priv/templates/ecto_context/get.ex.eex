@@ -1,0 +1,19 @@
+  @doc """
+  Fetches a single `<%= inspect(schema) %>` by `id`.
+  Returns `nil` if not found or `permission(:get, record, scope)` returns false.
+
+  ## Options
+
+    * `:preload` - associations to preload
+
+  """
+  def get(scope, id, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:preload])
+
+    record =
+      <%= inspect(schema) %>
+      |> EctoContext.Query.maybe_preload(opts[:preload])
+      |> <%= inspect(repo) %>.get(id)
+
+    if record && permission(:get, record, scope), do: record, else: nil
+  end

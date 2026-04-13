@@ -1,0 +1,35 @@
+  @doc """
+  Returns a `<%= inspect(schema) %>` changeset for tracking changes.
+
+  Raises `ArgumentError` if `permission(:create, ...)` (new record) or
+  `permission(:update, ...)` (existing record) denies the scope.
+
+  ## Options
+
+    * `:changeset` - changeset function to use (default: `:changeset`)
+
+  If a `changeset_permission/2` function is exported by the calling module,
+  it is consulted whenever a non-default `:changeset` is passed.  Raises
+  `ArgumentError` if denied.
+
+  """
+  def change(scope, %<%= inspect(schema) %>{} = <%= singular %>, attrs \\ %{}, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:changeset])
+
+    changeset_fn = Keyword.get(opts, :changeset, <%= inspect(default_changeset) %>)
+
+    if changeset_fn != <%= inspect(default_changeset) %> and function_exported?(__MODULE__, :changeset_permission, 2) do
+      unless apply(__MODULE__, :changeset_permission, [changeset_fn, scope]) do
+        raise ArgumentError, "unauthorized: #{__MODULE__}.change/4 — changeset :#{changeset_fn} not permitted for this scope"
+      end
+    end
+
+    changeset = apply(<%= inspect(schema) %>, changeset_fn, [<%= singular %>, attrs, scope])
+    action = if is_nil(<%= singular %>.id), do: :create, else: :update
+
+    unless permission(action, Ecto.Changeset.apply_changes(changeset), scope) do
+      raise ArgumentError, "unauthorized: #{__MODULE__}.change/4 called with insufficient scope"
+    end
+
+    changeset
+  end

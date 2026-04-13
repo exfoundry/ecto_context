@@ -1,0 +1,25 @@
+# Build artifacts
+/_build/
+/deps/
+*.ez
+
+# Mix
+erl_crash.dump
+*.beam
+
+# Generated on release
+/priv/static/
+
+# Docs
+/doc/
+
+# Editor
+.expert/
+.elixir_ls/
+.lexical/
+*.swp
+*.swo
+.DS_Store
+
+/.nix
+/.direnv

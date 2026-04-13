@@ -1,0 +1,6 @@
+<% pubsub_server || raise ArgumentError, "broadcast/2 requires pubsub_server: to be set in ecto_context. Pass it explicitly: ecto_context schema: #{inspect(schema)}, pubsub_server: MyApp.PubSub do" %>
+  @doc false
+  def broadcast(scope, message) when is_map(scope) do
+    key = (<%= inspect(topic_key) %>).(scope)
+    Phoenix.PubSub.broadcast(<%= inspect(pubsub_server) %>, "#{key}:<%= singular %>", message)
+  end

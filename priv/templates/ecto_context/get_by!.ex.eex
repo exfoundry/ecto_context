@@ -1,0 +1,25 @@
+  @doc """
+  Fetches a single `<%= inspect(schema) %>` matching `clauses`.
+  Raises `Ecto.NoResultsError` if not found or `permission(:get, record, scope)` returns false.
+
+  ## Options
+
+    * `:preload` - associations to preload
+    * `:query` - 1-arity function for additional query composition
+
+  """
+  def get_by!(scope, clauses, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:preload, :query])
+
+    record =
+      <%= inspect(schema) %>
+      |> EctoContext.Query.maybe_query(opts[:query])
+      |> EctoContext.Query.maybe_preload(opts[:preload])
+      |> <%= inspect(repo) %>.get_by!(clauses)
+
+    if permission(:get, record, scope) do
+      record
+    else
+      raise Ecto.NoResultsError, queryable: <%= inspect(schema) %>
+    end
+  end

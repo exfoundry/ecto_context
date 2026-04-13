@@ -1,0 +1,35 @@
+  @doc """
+  Returns a `%EctoContext.Paginator{}` for `<%= inspect(schema) %>` within `scope`.
+
+  ## Options
+
+    * `:page` - page number, 1-based (default: `1`)
+    * `:per_page` - number of records per page (default: `20`)
+    * `:order_by` - field or keyword list passed to `Ecto.Query.order_by/2`
+    * `:preload` - associations to preload
+    * `:query` - 1-arity function for additional query composition
+
+  """
+  def paginate(scope, opts \\ []) when is_map(scope) do
+    EctoContext.Validate.validate_opts!(opts, [:page, :per_page, :order_by, :preload, :query])
+
+    page     = opts[:page]     || 1
+    per_page = opts[:per_page] || 20
+
+    base =
+      <%= inspect(schema) %>
+      |> (<%= inspect(scope) %>).(scope)
+      |> EctoContext.Query.maybe_query(opts[:query])
+
+    total = <%= inspect(repo) %>.aggregate(base, :count, :id)
+
+    entries =
+      base
+      |> EctoContext.Query.maybe_order_by(opts[:order_by])
+      |> EctoContext.Query.maybe_preload(opts[:preload])
+      |> Ecto.Query.limit(^per_page)
+      |> Ecto.Query.offset(^((page - 1) * per_page))
+      |> <%= inspect(repo) %>.all()
+
+    EctoContext.Paginator.new(entries, total, page, per_page)
+  end
