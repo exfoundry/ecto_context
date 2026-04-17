@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1] - 2026-04-17
+
+### Added
+- `usage-rules.md` — focused LLM-oriented rules file ships with the hex
+  package. Covers return-value shapes, `scope/2` vs `permission/3`, the
+  `:get` unauthorized-collapses-to-nil trap, and common API pitfalls.
+- README section pointing AI agents at `deps/ecto_context/usage-rules.md`.
+
 ## [0.1.0] - 2026-04-13
 
 ### Added

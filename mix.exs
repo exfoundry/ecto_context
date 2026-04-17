@@ -1,7 +1,7 @@
 defmodule EctoContext.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
   @source_url "https://github.com/exfoundry/ecto_context"
 
   def project do
@@ -52,7 +52,7 @@ defmodule EctoContext.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "https://hexdocs.pm/ecto_context/changelog.html"
       },
-      files: ~w(lib priv mix.exs .formatter.exs README.md CHANGELOG.md LICENSE)
+      files: ~w(lib priv mix.exs .formatter.exs README.md CHANGELOG.md LICENSE usage-rules.md)
     ]
   end
 end

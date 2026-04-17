@@ -31,6 +31,20 @@ def deps do
 end
 ```
 
+## For LLMs / AI coding agents
+
+A focused, LLM-oriented rules file ships with the package at
+[`usage-rules.md`](usage-rules.md). Once installed, it lives at
+`deps/ecto_context/usage-rules.md` and covers the things LLMs most often
+get wrong: return-value shapes (reads are bare, writes are tuples), when
+`scope/2` vs `permission/3` fires, the `:get` trap where unauthorized
+collapses to `nil`, and a do/don't list of API pitfalls.
+
+Point your agent at it — either via direct `Read` on the deps path, or
+through a usage-rules aggregator like [memex](https://github.com/exfoundry/memex).
+Humans building new contexts may prefer starting there too; it's shorter
+than this README and covers the actual foot-guns.
+
 ## Usage
 
 ```elixir
