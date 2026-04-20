@@ -59,18 +59,14 @@ defmodule EctoContext.Templates.CreateForTest do
       user = Factory.insert(:user, is_admin: true)
 
       assert {:ok, %Article{}} =
-               Articles.create_for(Scope.for_user(user), :user, user.id, %{title: "Admin"},
-                 changeset: :admin_changeset
-               )
+               Articles.create_for(Scope.for_user(user), :user, user.id, %{title: "Admin"}, changeset: :admin_changeset)
     end
 
     test "returns :unauthorized for admin_changeset when scope is regular user" do
       user = Factory.insert(:user)
 
       assert {:error, :unauthorized} =
-               Articles.create_for(Scope.for_user(user), :user, user.id, %{title: "Nope"},
-                 changeset: :admin_changeset
-               )
+               Articles.create_for(Scope.for_user(user), :user, user.id, %{title: "Nope"}, changeset: :admin_changeset)
     end
 
     test "default changeset is never gated by changeset_permission" do

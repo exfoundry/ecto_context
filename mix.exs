@@ -12,6 +12,7 @@ defmodule EctoContext.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      aliases: aliases(),
       description: description(),
       package: package(),
       name: "EctoContext",
@@ -27,6 +28,21 @@ defmodule EctoContext.MixProject do
 
   def application do
     [extra_applications: [:logger]]
+  end
+
+  def cli do
+    [preferred_envs: [precommit: :test]]
+  end
+
+  defp aliases do
+    [
+      precommit: [
+        "compile --warning-as-errors",
+        "deps.unlock --unused",
+        "format --check-formatted",
+        "test"
+      ]
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

@@ -21,9 +21,9 @@ defmodule EctoContext.Templates.BroadcastTest do
         import EctoContext
 
         ecto_context schema: Article,
-                          scope: &__MODULE__.scope/2,
-                          repo: EctoContext.Test.Repo,
-                          pubsub_server: MyApp.PubSub do
+                     scope: &__MODULE__.scope/2,
+                     repo: EctoContext.Test.Repo,
+                     pubsub_server: MyApp.PubSub do
           broadcast()
         end
 
@@ -38,10 +38,10 @@ defmodule EctoContext.Templates.BroadcastTest do
         import EctoContext
 
         ecto_context schema: Article,
-                          scope: &__MODULE__.scope/2,
-                          repo: EctoContext.Test.Repo,
-                          pubsub_server: MyApp.PubSub,
-                          topic_key: &__MODULE__.topic_key/1 do
+                     scope: &__MODULE__.scope/2,
+                     repo: EctoContext.Test.Repo,
+                     pubsub_server: MyApp.PubSub,
+                     topic_key: &__MODULE__.topic_key/1 do
           broadcast()
         end
 

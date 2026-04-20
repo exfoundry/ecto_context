@@ -45,9 +45,7 @@ defmodule EctoContext.Templates.ChangeTest do
       article = Factory.insert(:article, user_id: user.id)
 
       assert %Ecto.Changeset{} =
-               Articles.change(Scope.for_user(user), article, %{title: "Admin"},
-                 changeset: :admin_changeset
-               )
+               Articles.change(Scope.for_user(user), article, %{title: "Admin"}, changeset: :admin_changeset)
     end
 
     test "raises for admin_changeset when scope is regular user" do
@@ -55,9 +53,7 @@ defmodule EctoContext.Templates.ChangeTest do
       article = Factory.insert(:article, user_id: user.id)
 
       assert_raise ArgumentError, ~r/changeset :admin_changeset not permitted/, fn ->
-        Articles.change(Scope.for_user(user), article, %{title: "Nope"},
-          changeset: :admin_changeset
-        )
+        Articles.change(Scope.for_user(user), article, %{title: "Nope"}, changeset: :admin_changeset)
       end
     end
 
