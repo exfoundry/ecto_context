@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2026-04-30
+
+### Fixed
+- README and `usage-rules.md` now correctly document `get`, `get!`, `get_by`, `get_by!` opts (`:preload, :select, :query`)
+- `usage-rules.md` clarifies that `:query` is always a 1-arity function; separates list-family opts from get-family opts
+
 ## [0.1.2] - 2026-04-30
 
 ### Added

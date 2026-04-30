@@ -90,10 +90,10 @@ to authorize the action before executing.
 | `list`       | `list(scope, opts \\ [])`                                      | :preload, :order_by, :limit, :select, :query      |
 | `list_for`   | `list_for(scope, assoc_atom, parent_id, opts \\ [])`           | :preload, :order_by, :limit, :select, :query      |
 | `list_by`    | `list_by(scope, clauses, opts \\ [])`                          | :preload, :order_by, :limit, :select, :query      |
-| `get`        | `get(scope, id, opts \\ [])`                                   | :preload                                          |
-| `get!`       | `get!(scope, id, opts \\ [])`                                  | :preload, :query                                  |
-| `get_by`     | `get_by(scope, clauses, opts \\ [])`                           | :preload                                          |
-| `get_by!`    | `get_by!(scope, clauses, opts \\ [])`                          | :preload, :query                                  |
+| `get`        | `get(scope, id, opts \\ [])`                                   | :preload, :select, :query                         |
+| `get!`       | `get!(scope, id, opts \\ [])`                                  | :preload, :select, :query                         |
+| `get_by`     | `get_by(scope, clauses, opts \\ [])`                           | :preload, :select, :query                         |
+| `get_by!`    | `get_by!(scope, clauses, opts \\ [])`                          | :preload, :select, :query                         |
 | `create`     | `create(scope, attrs, opts \\ [])`                             | :changeset (default: `:changeset`)                |
 | `create_for` | `create_for(scope, assoc_atom, parent_id, attrs, opts \\ [])` | :changeset (default: `:changeset`)                |
 | `update`     | `update(scope, record, attrs, opts \\ [])`                     | :changeset (default: `:changeset`)                |
