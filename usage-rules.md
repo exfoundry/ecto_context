@@ -48,7 +48,8 @@ Declare only what you need — the block is the public API surface.
 - PubSub: `subscribe/1`, `broadcast/2` (requires `:pubsub_server`)
 
 List opts (`list`, `list_for`, `list_by`, `paginate`): `:preload`, `:order_by`, `:limit`, `:select`, `:query`.
-Get opts (`get`, `get!`, `get_by`, `get_by!`): `:preload`, `:select`, `:query`.
+`get_by`/`get_by!` opts: `:preload`, `:order_by`, `:limit`, `:select`, `:query`.
+`get`/`get!` opts: `:preload`, `:select`, `:query`.
 Write opts: `:changeset` (default `:changeset`).
 
 `:query` is always a **1-arity function** `(Ecto.Queryable.t() -> Ecto.Queryable.t())` — e.g. `query: &Articles.published/1`.

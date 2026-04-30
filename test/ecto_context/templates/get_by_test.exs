@@ -45,6 +45,20 @@ defmodule EctoContext.Templates.GetByTest do
       assert result.body == nil
     end
 
+    test ":order_by and :limit return first matching record" do
+      user = Factory.insert(:user)
+      Factory.insert(:article, user_id: user.id, title: "B")
+      Factory.insert(:article, user_id: user.id, title: "A")
+
+      result =
+        Articles.get_by(Scope.for_user(user), [user_id: user.id],
+          order_by: [asc: :title],
+          limit: 1
+        )
+
+      assert result.title == "A"
+    end
+
     test "raises on unknown opt" do
       user = Factory.insert(:user)
 
@@ -99,6 +113,20 @@ defmodule EctoContext.Templates.GetByTest do
 
       assert result.title == "Hello"
       assert result.body == nil
+    end
+
+    test ":order_by and :limit return first matching record" do
+      user = Factory.insert(:user)
+      Factory.insert(:article, user_id: user.id, title: "B")
+      Factory.insert(:article, user_id: user.id, title: "A")
+
+      result =
+        Articles.get_by!(Scope.for_user(user), [user_id: user.id],
+          order_by: [asc: :title],
+          limit: 1
+        )
+
+      assert result.title == "A"
     end
 
     test "raises on unknown opt" do

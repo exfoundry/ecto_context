@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.4] - 2026-04-30
+
+### Added
+- `get_by` and `get_by!` now support `:order_by` and `:limit` options, enabling
+  "fetch first matching by ordering" patterns without a custom `:query` function
+
 ## [0.1.3] - 2026-04-30
 
 ### Fixed

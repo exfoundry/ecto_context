@@ -18,9 +18,9 @@
     |> (<%= inspect(scope) %>).(scope)
     |> EctoContext.Query.assoc_where(<%= inspect(schema) %>, assoc_atom, parent_id)
     |> EctoContext.Query.maybe_query(opts[:query])
-    |> EctoContext.Query.maybe_preload(opts[:preload])
     |> EctoContext.Query.maybe_order_by(opts[:order_by])
     |> EctoContext.Query.maybe_limit(opts[:limit])
     |> EctoContext.Query.maybe_select(opts[:select])
+    |> EctoContext.Query.maybe_preload(opts[:preload])
     |> <%= inspect(repo) %>.all()
   end

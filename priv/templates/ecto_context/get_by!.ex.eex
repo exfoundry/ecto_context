@@ -5,16 +5,20 @@
   ## Options
 
     * `:preload` - associations to preload
+    * `:order_by` - order results before fetching
+    * `:limit` - limit results before fetching
     * `:select` - list of fields to select
     * `:query` - 1-arity function for additional query composition
 
   """
   def get_by!(scope, clauses, opts \\ []) when is_map(scope) do
-    EctoContext.Validate.validate_opts!(opts, [:preload, :select, :query])
+    EctoContext.Validate.validate_opts!(opts, [:preload, :order_by, :limit, :select, :query])
 
     record =
       <%= inspect(schema) %>
       |> EctoContext.Query.maybe_query(opts[:query])
+      |> EctoContext.Query.maybe_order_by(opts[:order_by])
+      |> EctoContext.Query.maybe_limit(opts[:limit])
       |> EctoContext.Query.maybe_select(opts[:select])
       |> EctoContext.Query.maybe_preload(opts[:preload])
       |> <%= inspect(repo) %>.get_by!(clauses)
