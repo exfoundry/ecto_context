@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-04-30
+
+### Added
+- `get`, `get!`, `get_by`, `get_by!` now support `:select` and `:query` options
+- All four get-family functions now accept the same uniform option set: `:preload`, `:select`, `:query`
+
 ## [0.1.1] - 2026-04-17
 
 ### Added

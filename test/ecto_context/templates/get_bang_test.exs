@@ -40,6 +40,16 @@ defmodule EctoContext.Templates.GetBangTest do
       end
     end
 
+    test ":select returns only selected fields" do
+      user = Factory.insert(:user)
+      article = Factory.insert(:article, user_id: user.id, title: "Hello")
+
+      result = Articles.get!(Scope.for_user(user), article.id, select: [:id, :title, :user_id])
+      assert result.id == article.id
+      assert result.title == "Hello"
+      assert result.body == nil
+    end
+
     test "raises on unknown opt" do
       user = Factory.insert(:user)
       article = Factory.insert(:article, user_id: user.id)

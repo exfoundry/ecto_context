@@ -34,6 +34,23 @@ defmodule EctoContext.Templates.GetTest do
       assert %EctoContext.Test.User{} = result.user
     end
 
+    test ":query further narrows results" do
+      user = Factory.insert(:user)
+      article = Factory.insert(:article, user_id: user.id, published: false)
+
+      assert nil == Articles.get(Scope.for_user(user), article.id, query: &Articles.published/1)
+    end
+
+    test ":select returns only selected fields" do
+      user = Factory.insert(:user)
+      article = Factory.insert(:article, user_id: user.id, title: "Hello")
+
+      result = Articles.get(Scope.for_user(user), article.id, select: [:id, :title, :user_id])
+      assert result.id == article.id
+      assert result.title == "Hello"
+      assert result.body == nil
+    end
+
     test "raises on unknown opt" do
       user = Factory.insert(:user)
       article = Factory.insert(:article, user_id: user.id)

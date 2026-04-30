@@ -5,13 +5,17 @@
   ## Options
 
     * `:preload` - associations to preload
+    * `:select` - list of fields to select
+    * `:query` - 1-arity function for additional query composition
 
   """
   def get(scope, id, opts \\ []) when is_map(scope) do
-    EctoContext.Validate.validate_opts!(opts, [:preload])
+    EctoContext.Validate.validate_opts!(opts, [:preload, :select, :query])
 
     record =
       <%= inspect(schema) %>
+      |> EctoContext.Query.maybe_query(opts[:query])
+      |> EctoContext.Query.maybe_select(opts[:select])
       |> EctoContext.Query.maybe_preload(opts[:preload])
       |> <%= inspect(repo) %>.get(id)
 

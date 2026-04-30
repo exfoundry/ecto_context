@@ -26,6 +26,25 @@ defmodule EctoContext.Templates.GetByTest do
       assert nil == Articles.get_by(Scope.for_user(user2), title: "Specific")
     end
 
+    test ":query further narrows results" do
+      user = Factory.insert(:user)
+      Factory.insert(:article, user_id: user.id, title: "Draft", published: false)
+
+      assert nil ==
+               Articles.get_by(Scope.for_user(user), [title: "Draft"], query: &Articles.published/1)
+    end
+
+    test ":select returns only selected fields" do
+      user = Factory.insert(:user)
+      Factory.insert(:article, user_id: user.id, title: "Hello")
+
+      result =
+        Articles.get_by(Scope.for_user(user), [title: "Hello"], select: [:id, :title, :user_id])
+
+      assert result.title == "Hello"
+      assert result.body == nil
+    end
+
     test "raises on unknown opt" do
       user = Factory.insert(:user)
 
@@ -69,6 +88,17 @@ defmodule EctoContext.Templates.GetByTest do
       assert_raise Ecto.NoResultsError, fn ->
         Articles.get_by!(Scope.for_user(user), [title: "Draft"], query: &Articles.published/1)
       end
+    end
+
+    test ":select returns only selected fields" do
+      user = Factory.insert(:user)
+      Factory.insert(:article, user_id: user.id, title: "Hello")
+
+      result =
+        Articles.get_by!(Scope.for_user(user), [title: "Hello"], select: [:id, :title, :user_id])
+
+      assert result.title == "Hello"
+      assert result.body == nil
     end
 
     test "raises on unknown opt" do
