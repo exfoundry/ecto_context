@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1] - 2026-05-08
+
+### Added
+- `NoRepoOutsideAppLib`: new `:excluded_paths` option — list of path prefixes skipped
+  entirely by the check. Use for directories where direct Repo access is intentional,
+  e.g. `excluded_paths: ["lib/mix/tasks"]`.
+
 ## [0.3.0] - 2026-05-08
 
 ### Breaking

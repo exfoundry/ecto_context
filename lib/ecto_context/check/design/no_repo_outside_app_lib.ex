@@ -6,6 +6,13 @@ if Code.ensure_loaded?(Credo.Check) do
     The core app (`lib/[app]/`) has its own `NoUnscopedRepoInsideAppLib` check.
     Everything else in `lib/` — the web layer, mix tasks, and any other support
     code — must never touch Repo directly, no exceptions.
+
+    ## Options
+
+        * `:excluded_paths` - list of path prefixes (relative to project root) that
+        are excluded from this check entirely. Use for directories outside `lib/[app]/`
+        where direct Repo access is intentional, e.g. `["lib/mix/tasks"]`.
+
     """
 
     @explanation [check: @moduledoc]
@@ -14,7 +21,7 @@ if Code.ensure_loaded?(Credo.Check) do
       base_priority: :high,
       category: :design,
       exit_status: 1,
-      param_defaults: [repos: []]
+      param_defaults: [excluded_paths: [], repos: []]
 
     alias EctoContext.Check.Helpers
 
@@ -22,14 +29,16 @@ if Code.ensure_loaded?(Credo.Check) do
     def run(%SourceFile{} = source_file, params) do
       issue_meta = IssueMeta.for(source_file, params)
       suffixes = Helpers.configured_repo_aliases(params)
+      excluded_paths = Keyword.get(params, :excluded_paths, [])
 
       app = Mix.Project.config()[:app] |> to_string()
       filename = source_file.filename
 
       in_lib = String.starts_with?(filename, "lib/")
       in_app = String.starts_with?(filename, "lib/#{app}/")
+      in_excluded_path = Enum.any?(excluded_paths, &String.starts_with?(filename, &1))
 
-      if in_lib and not in_app do
+      if in_lib and not in_app and not in_excluded_path do
         source_file
         |> Credo.Code.prewalk(&collect_function_bodies/2, [])
         |> Enum.flat_map(&collect_repo_calls(&1, issue_meta, suffixes))

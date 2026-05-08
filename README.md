@@ -152,10 +152,14 @@ directories can be skipped via `:excluded_paths`.
 
 **`EctoContext.Check.Design.NoRepoOutsideAppLib`** absolutely bans all Repo calls in
 `lib/` outside `lib/[app]/` — the web layer, mix tasks, and other support code
-must never touch Repo directly.
+must never touch Repo directly. Use `:excluded_paths` for directories where direct
+Repo access is intentional (e.g. Mix tasks).
 
 ```elixir
-{EctoContext.Check.Design.NoRepoOutsideAppLib, [repos: [MyApp.Repo]]}
+{EctoContext.Check.Design.NoRepoOutsideAppLib, [
+  repos: [MyApp.Repo],
+  excluded_paths: ["lib/mix/tasks"]
+]}
 ```
 
 Both checks auto-detect the repo from `:ecto_repos` if `repos` is omitted.

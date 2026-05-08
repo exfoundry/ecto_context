@@ -85,4 +85,39 @@ defmodule EctoContext.Check.Design.NoRepoOutsideAppLibTest do
       |> assert_issue(fn issue -> assert issue.trigger == "Repo.all" end)
     end
   end
+
+  describe "excluded_paths option" do
+    test "skips files whose path starts with an excluded path" do
+      """
+      defmodule Mix.Tasks.MyTask do
+        def run(_), do: Platform.Repo.insert(%Thing{})
+      end
+      """
+      |> to_source_file("lib/mix/tasks/my_task.ex")
+      |> run_check(NoRepoOutsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks"]])
+      |> refute_issues()
+    end
+
+    test "still flags files outside the excluded path" do
+      """
+      defmodule PlatformWeb.SomeController do
+        def index(conn, _), do: Platform.Repo.all(Thing)
+      end
+      """
+      |> to_source_file("lib/ecto_context_web/some_controller.ex")
+      |> run_check(NoRepoOutsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks"]])
+      |> assert_issue()
+    end
+
+    test "supports multiple excluded paths" do
+      """
+      defmodule Mix.Tasks.MyTask do
+        def run(_), do: Platform.Repo.insert(%Thing{})
+      end
+      """
+      |> to_source_file("lib/mix/tasks/my_task.ex")
+      |> run_check(NoRepoOutsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks", "lib/ecto_context_web/admin"]])
+      |> refute_issues()
+    end
+  end
 end
