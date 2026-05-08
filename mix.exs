@@ -1,7 +1,7 @@
 defmodule EctoContext.MixProject do
   use Mix.Project
 
-  @version "0.1.4"
+  @version "0.1.5"
   @source_url "https://github.com/exfoundry/ecto_context"
 
   def project do
@@ -55,6 +55,7 @@ defmodule EctoContext.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.5"},
+      {:credo, "~> 1.7", optional: true, runtime: false},
       {:ecto_sqlite3, "~> 0.22", only: :test},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]

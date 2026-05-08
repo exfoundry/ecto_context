@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.5] - 2026-05-08
+
+### Added
+- `EctoContext.Check.ForceScoped` — optional Credo check (requires `{:credo, "~> 1.7"}`)
+  that enforces use of generated scoped functions in ecto_context modules. Bans direct
+  Repo calls for operations ecto_context covers (`all`, `get`, `get!`, `get_by`,
+  `get_by!`, `insert`, `insert!`, `update`, `update!`, `delete`, `delete!`, `aggregate`);
+  allows everything else (`transact`, `delete_all`, `insert_all`, `update_all`, …).
+  Repos are configured via `repos: [MyApp.Repo]` or auto-detected from `:ecto_repos`.
+- `EctoContext.Check.DeprecateRepoTransaction` — flags `Repo.transaction/2` project-wide
+  and points to `Repo.transact/2`, the official Ecto replacement.
+
 ## [0.1.4] - 2026-04-30
 
 ### Added

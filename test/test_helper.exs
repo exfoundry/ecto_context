@@ -1,4 +1,5 @@
 ExUnit.start()
+{:ok, _} = Application.ensure_all_started(:credo)
 
 {:ok, _} = EctoContext.Test.Repo.start_link()
 

@@ -130,6 +130,30 @@ config :ecto_context, :defaults,
   pubsub_server: MyApp.PubSub
 ```
 
+## Credo checks
+
+Two checks ship with the package. Both require `{:credo, "~> 1.7"}` in your deps.
+
+**`EctoContext.Check.ForceScoped`** enforces that ecto_context modules use the
+generated functions rather than calling Repo directly. It bans Repo functions
+that ecto_context covers (`all`, `get`, `get!`, `insert`, `update`, `delete`, …)
+and leaves everything else (`transact`, `delete_all`, `insert_all`, `update_all`,
+`preload`, …) alone.
+
+```elixir
+{EctoContext.Check.ForceScoped, [repos: [MyApp.Repo]]}
+```
+
+If `repos` is omitted or empty, the check reads `:ecto_repos` from your
+application config automatically.
+
+**`EctoContext.Check.DeprecateRepoTransaction`** flags `Repo.transaction/2` calls
+project-wide and points to `Repo.transact/2`, the official Ecto replacement.
+
+```elixir
+{EctoContext.Check.DeprecateRepoTransaction, []}
+```
+
 ## How it works
 
 Each function declaration in the `do` block maps to an EEx template in
