@@ -137,14 +137,16 @@ Two checks ship with the package. Both require `{:credo, "~> 1.7"}` in your deps
 **`EctoContext.Check.Design.NoUnscopedRepoInsideAppLib`** enforces that `lib/[app]/`
 uses context functions instead of calling Repo directly. Inside ecto_context
 modules the message is more specific (bypasses scope/permission); outside them
-it directs callers to the right context function. Suppresses violations when a
-whitelisted schema appears in the same function — useful for generated files
-(e.g. auth generator output) where direct Repo use is intentional.
+it directs callers to the right context function. Suppresses violations per-function
+when an excluded schema appears in the same function — useful for generated files
+(e.g. auth generator output) where direct Repo use is intentional. Entire
+directories can be skipped via `:excluded_paths`.
 
 ```elixir
 {EctoContext.Check.Design.NoUnscopedRepoInsideAppLib, [
   repos: [MyApp.Repo],
-  allowed_schemas: [MyApp.Accounts.UserToken]
+  excluded_schemas: [MyApp.Accounts.UserToken],
+  excluded_paths: ["lib/mix/tasks"]
 ]}
 ```
 

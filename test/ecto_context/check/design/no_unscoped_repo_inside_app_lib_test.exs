@@ -118,8 +118,8 @@ defmodule EctoContext.Check.Design.NoUnscopedRepoInsideAppLibTest do
     end
   end
 
-  describe "allowed_schemas option" do
-    test "suppresses violations when an allowed schema is referenced in the same function" do
+  describe "excluded_schemas option" do
+    test "suppresses violations when an excluded schema is referenced in the same function" do
       """
       defmodule Platform.SomeWorker do
         def run do
@@ -128,22 +128,22 @@ defmodule EctoContext.Check.Design.NoUnscopedRepoInsideAppLibTest do
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Oban.Job]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Oban.Job]])
       |> refute_issues()
     end
 
-    test "still flags violations when the allowed schema is not present" do
+    test "still flags violations when the excluded schema is not present" do
       """
       defmodule Platform.SomeWorker do
         def run, do: Platform.Repo.all(Thing)
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Oban.Job]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Oban.Job]])
       |> assert_issue()
     end
 
-    test "only suppresses the function containing the allowed schema, not others" do
+    test "only suppresses the function containing the excluded schema, not others" do
       """
       defmodule Platform.SomeWorker do
         def with_oban do
@@ -156,13 +156,13 @@ defmodule EctoContext.Check.Design.NoUnscopedRepoInsideAppLibTest do
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Oban.Job]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Oban.Job]])
       |> assert_issues(1)
     end
   end
 
-  describe "allowed_schemas — function head pattern match" do
-    test "suppresses violation when allowed schema is pattern-matched in function head (short alias form)" do
+  describe "excluded_schemas — function head pattern match" do
+    test "suppresses violation when excluded schema is pattern-matched in function head (short alias form)" do
       """
       defmodule Platform.Accounts.UserTokens do
         alias Platform.Accounts.UserTokens.UserToken
@@ -170,22 +170,22 @@ defmodule EctoContext.Check.Design.NoUnscopedRepoInsideAppLibTest do
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Platform.Accounts.UserTokens.UserToken]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Platform.Accounts.UserTokens.UserToken]])
       |> refute_issues()
     end
 
-    test "suppresses violation when allowed schema is pattern-matched in function head (full module form)" do
+    test "suppresses violation when excluded schema is pattern-matched in function head (full module form)" do
       """
       defmodule Platform.Accounts.UserTokens do
         def insert!(%Platform.Accounts.UserTokens.UserToken{} = token), do: Platform.Repo.insert!(token)
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Platform.Accounts.UserTokens.UserToken]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Platform.Accounts.UserTokens.UserToken]])
       |> refute_issues()
     end
 
-    test "still flags when allowed schema is in head of a different function" do
+    test "still flags when excluded schema is in head of a different function" do
       """
       defmodule Platform.Accounts.UserTokens do
         alias Platform.Accounts.UserTokens.UserToken
@@ -194,8 +194,43 @@ defmodule EctoContext.Check.Design.NoUnscopedRepoInsideAppLibTest do
       end
       """
       |> to_source_file("lib/ecto_context/some_worker.ex")
-      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [allowed_schemas: [Platform.Accounts.UserTokens.UserToken]])
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_schemas: [Platform.Accounts.UserTokens.UserToken]])
       |> assert_issues(1)
+    end
+  end
+
+  describe "excluded_paths option" do
+    test "skips files whose path starts with an excluded path" do
+      """
+      defmodule Platform.Tasks.SeedData do
+        def run, do: Platform.Repo.all(Thing)
+      end
+      """
+      |> to_source_file("lib/mix/tasks/seed_data.ex")
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks"]])
+      |> refute_issues()
+    end
+
+    test "still flags files outside the excluded path" do
+      """
+      defmodule Platform.SomeWorker do
+        def run, do: Platform.Repo.all(Thing)
+      end
+      """
+      |> to_source_file("lib/ecto_context/some_worker.ex")
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks"]])
+      |> assert_issue()
+    end
+
+    test "supports multiple excluded paths" do
+      """
+      defmodule Platform.Tasks.SeedData do
+        def run, do: Platform.Repo.all(Thing)
+      end
+      """
+      |> to_source_file("lib/ecto_context/scripts/backfill.ex")
+      |> run_check(NoUnscopedRepoInsideAppLib, @repos ++ [excluded_paths: ["lib/mix/tasks", "lib/ecto_context/scripts"]])
+      |> refute_issues()
     end
   end
 end

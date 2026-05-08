@@ -1,13 +1,23 @@
 # Changelog
 
+## [0.3.0] - 2026-05-08
+
+### Breaking
+- `NoUnscopedRepoInsideAppLib`: `:allowed_schemas` renamed to `:excluded_schemas`.
+  Update your `.credo.exs` accordingly.
+
+### Added
+- `NoUnscopedRepoInsideAppLib`: new `:excluded_paths` option — list of path prefixes
+  (e.g. `["lib/mix/tasks"]`) that are skipped entirely by the check.
+
 ## [0.2.0] - 2026-05-08
 
 ### Breaking
 - `EctoContext.Check.ForceScoped` removed. Replace with two more focused checks:
   - `EctoContext.Check.Design.NoUnscopedRepoInsideAppLib` — covers all of `lib/[app]/`
     uniformly (ecto_context and non-ecto_context modules alike), with context-aware
-    error messages. Supports `allowed_schemas` to suppress violations per-function
-    when a whitelisted schema is referenced in the function head or body.
+    error messages. Supports `excluded_schemas` to suppress violations per-function
+    when a schema is referenced in the function head or body.
   - `EctoContext.Check.Design.NoRepoOutsideAppLib` — absolute Repo ban in `lib/` outside
     `lib/[app]/` (web layer, mix tasks, other support code).
 - `EctoContext.Check.DeprecateRepoTransaction` renamed to

@@ -9,11 +9,15 @@ if Code.ensure_loaded?(Credo.Check) do
 
     ## Options
 
-        * `:allowed_schemas` - list of schema modules whose presence in a function's head
+        * `:excluded_schemas` - list of schema modules whose presence in a function's head
         or body suppresses violations for that function. Use for legitimate direct-Repo
         patterns involving specific structs (e.g. `[Oban.Job]`). Pattern-matching the
         struct in the function head (`%MySchema{} = arg`) is sufficient to suppress.
         Both aliased and full-module forms are matched via suffix comparison.
+
+        * `:excluded_paths` - list of path prefixes (relative to project root) that are
+        excluded from this check entirely. Use for directories where direct Repo access
+        is intentional, e.g. `["lib/mix/tasks"]`.
 
     """
 
@@ -23,7 +27,7 @@ if Code.ensure_loaded?(Credo.Check) do
       base_priority: :high,
       category: :design,
       exit_status: 1,
-      param_defaults: [allowed_schemas: [], repos: []]
+      param_defaults: [excluded_schemas: [], excluded_paths: [], repos: []]
 
     alias EctoContext.Check.Helpers
 
@@ -33,24 +37,26 @@ if Code.ensure_loaded?(Credo.Check) do
     def run(%SourceFile{} = source_file, params) do
       issue_meta = IssueMeta.for(source_file, params)
       suffixes = Helpers.configured_repo_aliases(params)
-      allowed = allowed_module_parts(params)
+      excluded = excluded_module_parts(params)
+      excluded_paths = Keyword.get(params, :excluded_paths, [])
 
       app = Mix.Project.config()[:app] |> to_string()
       in_app = String.starts_with?(source_file.filename, "lib/#{app}/")
+      in_excluded_path = Enum.any?(excluded_paths, &String.starts_with?(source_file.filename, &1))
 
-      if in_app do
+      if in_app and not in_excluded_path do
         is_ecto_context = Credo.Code.prewalk(source_file, &detect_ecto_context/2, false)
 
         source_file
         |> Credo.Code.prewalk(&collect_functions/2, [])
-        |> Enum.flat_map(&issues_for_function(&1, issue_meta, suffixes, allowed, is_ecto_context))
+        |> Enum.flat_map(&issues_for_function(&1, issue_meta, suffixes, excluded, is_ecto_context))
       else
         []
       end
     end
 
-    defp issues_for_function({_head, body} = function, issue_meta, suffixes, allowed, is_ecto_context) do
-      if allowed != [] and has_allowed_module?(function, allowed) do
+    defp issues_for_function({_head, body} = function, issue_meta, suffixes, excluded, is_ecto_context) do
+      if excluded != [] and has_excluded_module?(function, excluded) do
         []
       else
         Credo.Code.prewalk(body, &collect_repo_calls(&1, &2, issue_meta, suffixes, is_ecto_context), [])
@@ -67,12 +73,12 @@ if Code.ensure_loaded?(Credo.Check) do
 
     defp collect_functions(node, acc), do: {node, acc}
 
-    defp has_allowed_module?(_function, []), do: false
+    defp has_excluded_module?(_function, []), do: false
 
-    defp has_allowed_module?({head, body}, allowed) do
+    defp has_excluded_module?({head, body}, excluded) do
       check = fn
         {:__aliases__, _, mod_parts} = node, acc ->
-          {node, acc or Enum.any?(allowed, &suffix_match?(&1, mod_parts))}
+          {node, acc or Enum.any?(excluded, &suffix_match?(&1, mod_parts))}
 
         node, acc ->
           {node, acc}
@@ -120,8 +126,8 @@ if Code.ensure_loaded?(Credo.Check) do
       )
     end
 
-    defp allowed_module_parts(params) do
-      case Keyword.get(params, :allowed_schemas, []) do
+    defp excluded_module_parts(params) do
+      case Keyword.get(params, :excluded_schemas, []) do
         [] -> []
         list -> Enum.map(list, fn mod -> mod |> Module.split() |> Enum.map(&String.to_atom/1) end)
       end
