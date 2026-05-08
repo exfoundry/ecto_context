@@ -134,24 +134,35 @@ config :ecto_context, :defaults,
 
 Two checks ship with the package. Both require `{:credo, "~> 1.7"}` in your deps.
 
-**`EctoContext.Check.ForceScoped`** enforces that ecto_context modules use the
-generated functions rather than calling Repo directly. It bans Repo functions
-that ecto_context covers (`all`, `get`, `get!`, `insert`, `update`, `delete`, …)
-and leaves everything else (`transact`, `delete_all`, `insert_all`, `update_all`,
-`preload`, …) alone.
+**`EctoContext.Check.Design.NoUnscopedRepoInsideAppLib`** enforces that `lib/[app]/`
+uses context functions instead of calling Repo directly. Inside ecto_context
+modules the message is more specific (bypasses scope/permission); outside them
+it directs callers to the right context function. Suppresses violations when a
+whitelisted schema appears in the same function — useful for generated files
+(e.g. auth generator output) where direct Repo use is intentional.
 
 ```elixir
-{EctoContext.Check.ForceScoped, [repos: [MyApp.Repo]]}
+{EctoContext.Check.Design.NoUnscopedRepoInsideAppLib, [
+  repos: [MyApp.Repo],
+  allowed_schemas: [MyApp.Accounts.UserToken]
+]}
 ```
 
-If `repos` is omitted or empty, the check reads `:ecto_repos` from your
-application config automatically.
+**`EctoContext.Check.Design.NoRepoOutsideAppLib`** absolutely bans all Repo calls in
+`lib/` outside `lib/[app]/` — the web layer, mix tasks, and other support code
+must never touch Repo directly.
 
-**`EctoContext.Check.DeprecateRepoTransaction`** flags `Repo.transaction/2` calls
+```elixir
+{EctoContext.Check.Design.NoRepoOutsideAppLib, [repos: [MyApp.Repo]]}
+```
+
+Both checks auto-detect the repo from `:ecto_repos` if `repos` is omitted.
+
+**`EctoContext.Check.Warning.DeprecateRepoTransaction`** flags `Repo.transaction/2` calls
 project-wide and points to `Repo.transact/2`, the official Ecto replacement.
 
 ```elixir
-{EctoContext.Check.DeprecateRepoTransaction, []}
+{EctoContext.Check.Warning.DeprecateRepoTransaction, []}
 ```
 
 ## How it works

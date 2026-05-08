@@ -143,12 +143,12 @@ them by name.
   true bypasses (migrations, admin one-offs), call `Repo.all(query)` in a
   separate, clearly-named function outside the context.
 - **Don't call Repo directly inside an ecto_context module** for operations the
-  generated functions cover — `EctoContext.Check.ForceScoped` enforces this at
-  the Credo level. Bulk ops (`delete_all`, `insert_all`, `update_all`) and
-  `transact` are fine; everything else is not.
+  generated functions cover — `EctoContext.Check.Design.NoUnscopedRepoInsideAppLib`
+  enforces this at the Credo level. Bulk ops (`delete_all`, `insert_all`,
+  `update_all`) and `transact` are fine; everything else is not.
 - **Don't use `Repo.transaction/2`** — it is deprecated. Use `Repo.transact/2`;
   the lambda returns `{:ok, result}` to commit or `{:error, reason}` to roll back.
-  `EctoContext.Check.DeprecateRepoTransaction` enforces this project-wide.
+  `EctoContext.Check.Warning.DeprecateRepoTransaction` enforces this project-wide.
 - **Don't make `scope/2` or `permission/3` private** — the macro expands to
   external calls by name.
 

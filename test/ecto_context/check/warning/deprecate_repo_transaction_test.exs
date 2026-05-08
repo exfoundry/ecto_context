@@ -1,7 +1,7 @@
-defmodule EctoContext.Check.DeprecateRepoTransactionTest do
+defmodule EctoContext.Check.Warning.DeprecateRepoTransactionTest do
   use Credo.Test.Case
 
-  alias EctoContext.Check.DeprecateRepoTransaction
+  alias EctoContext.Check.Warning.DeprecateRepoTransaction
 
   describe "run/2" do
     test "reports Repo.transaction with full module path" do

@@ -1,5 +1,5 @@
 if Code.ensure_loaded?(Credo.Check) do
-  defmodule EctoContext.Check.DeprecateRepoTransaction do
+  defmodule EctoContext.Check.Warning.DeprecateRepoTransaction do
     @moduledoc """
     Repo.transaction/2 is deprecated — use Repo.transact/2 instead.
 
@@ -18,10 +18,12 @@ if Code.ensure_loaded?(Credo.Check) do
 
     use Credo.Check, base_priority: :high, category: :warning, exit_status: 1
 
+    alias EctoContext.Check.Helpers
+
     @impl true
     def run(%SourceFile{} = source_file, params) do
       issue_meta = IssueMeta.for(source_file, params)
-      suffixes = repo_suffixes(params)
+      suffixes = Helpers.configured_repo_aliases(params)
       Credo.Code.prewalk(source_file, &collect_issues(&1, &2, issue_meta, suffixes), [])
     end
 
@@ -50,23 +52,6 @@ if Code.ensure_loaded?(Credo.Check) do
         line_no: line_no,
         trigger: "Repo.transaction"
       )
-    end
-
-    defp repo_suffixes(params) do
-      repos =
-        case Keyword.get(params, :repos, []) do
-          [] ->
-            app = Mix.Project.config()[:app]
-            Application.get_env(app, :ecto_repos, [])
-
-          explicit ->
-            explicit
-        end
-
-      case repos do
-        [] -> [:Repo]
-        list -> Enum.map(list, fn repo -> repo |> Module.split() |> List.last() |> String.to_atom() end)
-      end
     end
   end
 end

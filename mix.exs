@@ -1,7 +1,7 @@
 defmodule EctoContext.MixProject do
   use Mix.Project
 
-  @version "0.1.5"
+  @version "0.2.0"
   @source_url "https://github.com/exfoundry/ecto_context"
 
   def project do
